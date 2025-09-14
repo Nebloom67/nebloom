@@ -134,6 +134,13 @@
     .pill{font-size:12px; color:#0e0820; font-weight:800; padding:6px 10px; border-radius:999px;
       background:linear-gradient(90deg,var(--brand-3),#fff)
     }
+/* Cadres 3D dans les cartes */
+.thumb { position: relative; }
+.p3d { width: 100%; height: 100%; display:block; }
+
+/* Effet hover chic */
+.card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.28); }
+.card:hover .thumb { filter: brightness(1.12) saturate(1.08); }
 
     /* FOOTER */
     footer{
@@ -187,17 +194,17 @@
 
       <!-- MENU -->
       <nav class="menu">
-        <a href="#" class="is-brand">New</a>
-        <a href="#">Lips</a>
-        <a href="#">Eyes</a>
-        <a href="#">Face</a>
-        <a href="#">Skincare</a>
-        <a href="#">Fragrance</a>
-        <a href="#">Accessories</a>
-        <a href="#">Gifts</a>
-        <a href="#">Collections</a>
-        <a href="#">Sale</a>
-      </nav>
+  <a href="#new" class="is-brand">New</a>
+  <a href="#lips">Lips</a>
+  <a href="#eyes">Eyes</a>
+  <a href="#face">Face</a>
+  <a href="#skincare">Skincare</a>
+  <a href="#fragrance">Fragrance</a>
+  <a href="#accessories">Accessories</a>
+  <a href="#gifts">Gifts</a>
+  <a href="#collections">Collections</a>
+  <a href="#sale">Sale</a>
+</nav>
     </div>
   </header>
 
@@ -287,6 +294,111 @@
       </article>
     </div>
   </section>
+<!-- ===== CATEGORIES AVEC PRODUITS 3D ===== -->
+<section id="lips" class="container section">
+  <h2 class="sec-title">Lips</h2>
+  <div class="grid">
+    <article class="card">
+      <div class="thumb" style="background:#0f0e19">
+        <canvas class="p3d" data-type="lipstick"></canvas>
+      </div>
+      <div class="body">
+        <strong>Velvet Bloom Lipstick</strong><br>
+        <span class="price">€29</span>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="thumb" style="background:#0f0e19">
+        <canvas class="p3d" data-type="lipstick"></canvas>
+      </div>
+      <div class="body">
+        <strong>Crystal Gloss</strong><br>
+        <span class="price">€24</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="eyes" class="container section">
+  <h2 class="sec-title">Eyes</h2>
+  <div class="grid">
+    <article class="card">
+      <div class="thumb" style="background:#0f0e19">
+        <canvas class="p3d" data-type="mascara"></canvas>
+      </div>
+      <div class="body">
+        <strong>Crystal Mascara</strong><br>
+        <span class="price">€27</span>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="thumb" style="background:#0f0e19">
+        <canvas class="p3d" data-type="palette"></canvas>
+      </div>
+      <div class="body">
+        <strong>Starlight Eyeshadow Quad</strong><br>
+        <span class="price">€39</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="face" class="container section">
+  <h2 class="sec-title">Face</h2>
+  <div class="grid">
+    <article class="card">
+      <div class="thumb" style="background:#0f0e19">
+        <canvas class="p3d" data-type="compact"></canvas>
+      </div>
+      <div class="body">
+        <strong>Silk Touch Powder</strong><br>
+        <span class="price">€31</span>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="thumb" style="background:#0f0e19">
+        <canvas class="p3d" data-type="foundation"></canvas>
+      </div>
+      <div class="body">
+        <strong>Silk Skin Foundation</strong><br>
+        <span class="price">€44</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="skincare" class="container section">
+  <h2 class="sec-title">Skincare</h2>
+  <div class="grid">
+    <article class="card">
+      <div class="thumb" style="background:#0f0e19">
+        <canvas class="p3d" data-type="serum"></canvas>
+      </div>
+      <div class="body">
+        <strong>Glow Serum</strong><br>
+        <span class="price">€49</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="fragrance" class="container section">
+  <h2 class="sec-title">Fragrance</h2>
+  <div class="grid">
+    <article class="card">
+      <div class="thumb" style="background:#0f0e19">
+        <canvas class="p3d" data-type="perfume"></canvas>
+      </div>
+      <div class="body">
+        <strong>Pink Bloom</strong><br>
+        <span class="price">€72</span>
+      </div>
+    </article>
+  </div>
+</section>
 
   <!-- FOOTER -->
   <footer>
@@ -409,5 +521,107 @@
     }
     animate();
   </script>
+  <script>
+/** Mini-moteur 3D pour chaque carte .p3d
+ * data-type possible: lipstick, mascara, palette, compact, foundation, serum, perfume
+ */
+(function(){
+  const makeScene = (canvas, builder) => {
+    const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+    camera.position.set(0, 0.6, 6);
+
+    const amb = new THREE.AmbientLight(0xffffff, 0.9); scene.add(amb);
+    const key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(2,3,4); scene.add(key);
+    const rim = new THREE.DirectionalLight(0xff7ae6, 0.6); rim.position.set(-3,1,-2); scene.add(rim);
+
+    const group = new THREE.Group(); scene.add(group);
+    builder(group); // construit l'objet
+
+    const ro = new ResizeObserver(()=>{
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width, h = rect.height || (rect.width*0.75);
+      renderer.setSize(w, h, false);
+      camera.aspect = w/h; camera.updateProjectionMatrix();
+    });
+    ro.observe(canvas);
+
+    let t=0;
+    function anim(){
+      requestAnimationFrame(anim);
+      t+=0.01;
+      group.rotation.y += 0.01;
+      group.position.y = Math.sin(t)*0.06; // léger flottement
+      renderer.render(scene, camera);
+    }
+    anim();
+  };
+
+  // Matériaux réutilisables
+  const M = {
+    case:  new THREE.MeshStandardMaterial({ color: 0x1b1634, metalness:.7, roughness:.25 }),
+    metal: new THREE.MeshStandardMaterial({ color: 0xe9e1ff, metalness:1, roughness:.18 }),
+    lip:   new THREE.MeshStandardMaterial({ color: 0xff4f9c, metalness:.2, roughness:.45 }),
+    glass: new THREE.MeshPhysicalMaterial({ color: 0xffb8e1, transmission:.9, thickness:0.5, roughness:.1, metalness:0 }),
+    liquid:new THREE.MeshStandardMaterial({ color: 0xff5bbd, metalness:.1, roughness:.2, emissive:0x000000 }),
+    black: new THREE.MeshStandardMaterial({ color: 0x0f0f14, metalness:.6, roughness:.3 }),
+    gold:  new THREE.MeshStandardMaterial({ color: 0xffe49a, metalness:1, roughness:.2 }),
+  };
+
+  const BUILDERS = {
+    lipstick(group){
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.7,0.7,2.2,48), M.case); body.position.y=-0.2; group.add(body);
+      const hold = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,1.2,48), M.metal); hold.position.y=0.9; group.add(hold);
+      const stick= new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.45,1.0,48), M.lip); stick.position.y=1.65; group.add(stick);
+      const tip  = new THREE.Mesh(new THREE.ConeGeometry(0.45,0.9,48), M.lip); tip.position.y=2.1; group.add(tip);
+      group.rotation.z = 0.15;
+    },
+    mascara(group){
+      const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.45,2.8,48), M.black); group.add(tube);
+      const cap  = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.8,48), M.gold); cap.position.y=1.8; group.add(cap);
+    },
+    palette(group){
+      const base = new THREE.Mesh(new THREE.BoxGeometry(2.4,0.2,1.6), M.black); base.position.y=-0.2; group.add(base);
+      const lid  = new THREE.Mesh(new THREE.BoxGeometry(2.4,0.08,1.6), M.gold); lid.position.y=0.3; lid.rotation.x=-0.6; group.add(lid);
+      // 4 fards
+      const colors=[0xff5bbd,0xffcde6,0x8a5cff,0x9ad4ff];
+      for(let i=0;i<4;i++){
+        const p = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.1,0.5),
+          new THREE.MeshStandardMaterial({color:colors[i], roughness:.6, metalness:.05}));
+        p.position.set(-0.75 + (i%2)*0.8, -0.15, -0.4 + Math.floor(i/2)*0.8);
+        group.add(p);
+      }
+    },
+    compact(group){
+      const disk = new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,0.3,48), M.gold); group.add(disk);
+      const powder = new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,0.12,48),
+        new THREE.MeshStandardMaterial({color:0xffe0c2, roughness:.8}));
+      powder.position.y=0.1; group.add(powder);
+    },
+    foundation(group){
+      const bottle = new THREE.Mesh(new THREE.BoxGeometry(1.1,2.2,0.9), M.glass); group.add(bottle);
+      const pump   = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.5,32), M.black); pump.position.y=1.4; group.add(pump);
+    },
+    serum(group){
+      const b = new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,2.0,48), M.glass); group.add(b);
+      const drop = new THREE.Mesh(new THREE.ConeGeometry(0.2,0.7,32), M.liquid); drop.position.y=1.4; group.add(drop);
+      const cap  = new THREE.Mesh(new THREE.CylinderGeometry(0.9,0.9,0.6,48), M.gold); cap.position.y=1.2; group.add(cap);
+    },
+    perfume(group){
+      const flacon = new THREE.Mesh(new THREE.BoxGeometry(1.4,1.8,0.6), M.glass); group.add(flacon);
+      const bouchon= new THREE.Mesh(new THREE.BoxGeometry(0.9,0.5,0.6), M.gold); bouchon.position.y=1.2; group.add(bouchon);
+    }
+  };
+
+  // Lance une scène 3D pour chaque canvas .p3d
+  document.querySelectorAll('canvas.p3d').forEach(cv=>{
+    const type = cv.dataset.type || 'lipstick';
+    const builder = BUILDERS[type] || BUILDERS.lipstick;
+    makeScene(cv, builder);
+  });
+})();
+</script>
+
 </body>
 </html>
